@@ -15,7 +15,7 @@ class Path():
         if t is None:
             return self.x, self.y, self.z
         else:
-            return self.x(t), self.y(t), self.z(t)
+            return self.x[t], self.y[t], self.z[t]
     
     def rotate(self, theta, phi):
         # Rotate the path
