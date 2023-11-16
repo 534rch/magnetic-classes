@@ -4,3 +4,4 @@ from .source import *
 from .field import *
 from .layer import *
 from .measurement import *
+from .moving_dipole import *
