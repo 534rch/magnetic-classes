@@ -32,9 +32,11 @@ class Path():
         self.x += x
         self.y += y
         self.z += z
-        self.grid[0] += x
-        self.grid[1] += y
-        self.grid[2] += z
+
+        if hasattr(self, 'grid'):
+            self.grid[0] += x
+            self.grid[1] += y
+            self.grid[2] += z
         return self
 
     def center(self):
