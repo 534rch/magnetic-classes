@@ -10,13 +10,13 @@ class MovingDipole(Source):
         self.dipole = dipole
         self.path = path
 
-    def __call__(self, t, x, y, z, magnitude=False):
+    def __call__(self, x, y, z, t, magnitude=False):
         """
         Calculate the magnetic field at a given point.
-        :param t: time
         :param x: x-coordinate of the point
         :param y: y-coordinate of the point
         :param z: z-coordinate of the point
+        :param t: time
         :return: the magnetic field strength at the point
         """
 
