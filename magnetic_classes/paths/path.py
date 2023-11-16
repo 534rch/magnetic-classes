@@ -11,8 +11,11 @@ class Path():
         if kwargs.get("grid") is not None:
             self.grid : np.ndarray = kwargs.get("grid")
 
-    def __call__(self):
-        return self.x, self.y, self.z
+    def __call__(self, t = None):
+        if t is None:
+            return self.x, self.y, self.z
+        else:
+            return self.x(t), self.y(t), self.z(t)
     
     def rotate(self, theta, phi):
         # Rotate the path
