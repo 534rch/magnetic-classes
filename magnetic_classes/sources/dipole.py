@@ -31,7 +31,7 @@ class Dipole(Source):
             self.my *= np.abs(z0) ** 3 * 1e7/2
             self.mz *= np.abs(z0) ** 3 * 1e7/2
 
-    def __call__(self, x, y, z, magnitude=False):
+    def __call__(self, x, y, z, t=0, magnitude=False):
         """
         Calculate the magnetic field at a given point.
         :param x: x-coordinate of the point
