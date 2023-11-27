@@ -12,7 +12,7 @@ class GaussianNoise(Source):
         self.mean = mean
         self.std = std
         if seed is None:
-            seed = np.random.randint(0, 2 ** 32 - 1)
+            seed = np.random.randint(0, 2 ** 16 - 1)
         self.seed = seed
         np.random.seed(seed)
 
