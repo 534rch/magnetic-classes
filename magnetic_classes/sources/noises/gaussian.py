@@ -1,5 +1,4 @@
 import numpy as np
-# from magnetic_classes.sources.source import Source
 from magnetic_classes import ScalarMeasurement, VectorMeasurement, Source
 
 class GaussianNoise(Source):
