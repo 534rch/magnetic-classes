@@ -25,7 +25,7 @@ class MovingDipole(Source):
         self.dipole.y0 = pos[1]
         self.dipole.z0 = pos[2]
 
-        return self.dipole(x, y, z, magnitude=magnitude)
+        return self.dipole(x, y, z, t, magnitude=magnitude)
 
     def getParameters(self):
         return {
