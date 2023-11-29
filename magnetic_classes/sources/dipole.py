@@ -39,12 +39,17 @@ class Dipole(Source):
         :param z: z-coordinate of the point
         :return: the magnetic field strength at the point
         """
+        # Check if value is not a numpy array
+        if not isinstance(t, np.ndarray) or t.shape[0] == 1:
+            t = np.array([t]).repeat(x.shape[0])
+
+    
 
         if not self.active:
             if magnitude:
-                return ScalarMeasurement(np.array([x,y,z, np.zeros_like(x)]))
+                return ScalarMeasurement(np.array([x,y,z,t, np.zeros_like(x)]))
             else:
-                return VectorMeasurement(np.array([x,y,z, np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)]))
+                return VectorMeasurement(np.array([x,y,z,t, np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)]))
 
         # Fundamental constants
 
@@ -73,9 +78,9 @@ class Dipole(Source):
         Bz = mu0 / (4 * np.pi) * (3 * r_in_m_5 * rz - self.mz * r_3)
 
         if magnitude:
-            return ScalarMeasurement(np.array([x, y, z, np.linalg.norm([Bx, By, Bz], axis=0)]))
+            return ScalarMeasurement(np.array([x, y, z, t, np.linalg.norm([Bx, By, Bz], axis=0)]))
 
-        return VectorMeasurement(np.array([x, y, z, Bx, By, Bz]))
+        return VectorMeasurement(np.array([x, y, z, t, Bx, By, Bz]))
 
     def moment(self):
         """
