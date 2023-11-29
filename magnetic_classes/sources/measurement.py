@@ -5,22 +5,24 @@ import copy
 class Measurement:
     def __init__(self, measurements, magnitude=False, **kwargs):
         """
-        :param measurements: a list of measurements (x, y, z, Bx, By, Bz) or (x, y, z, B) (see magnitude)
+        :param measurements: a list of measurements (x, y, z, t, Bx, By, Bz) or (x, y, z, t, B) (see magnitude)
         :param magnitude: if True, the magnitude of the magnetic field is used instead of the components
         :param **kwargs: additional arguments
         """
         
-        # Check if measurements has the correct shape (n,6) or (n,4)
-        # print("measurements.shape = {}".format(measurements.shape))
+        if measurements.shape[0] == 4 or measurements.shape[0] == 6:
+            # Add time column to measurements. The time is 0.
+            measurements = np.concatenate((measurements[:3], np.zeros((1, measurements.shape[1])), measurements[3:]), axis=0)
 
+        # Check if measurements has the correct shape (n,7) or (n,5)
         if magnitude:
-            if measurements.shape[0] != 4:
-                raise Exception("The shape of the measurements is incorrect. Expected (4,n) but got {}".format(measurements.shape))
-            self.values = measurements[3]
+            if measurements.shape[0] != 5 and measurements.shape[0] != 7:
+                raise Exception("The shape of the measurements is incorrect. Expected (5,n) but got {}".format(measurements.shape))
+            self.values = measurements[4]
         else:
-            if measurements.shape[0] != 6:
-                raise Exception("The shape of the measurements is incorrect. Expected (6,n) but got {}".format(measurements.shape))
-            self.values = measurements[3:6]
+            if measurements.shape[0] != 7:
+                raise Exception("The shape of the measurements is incorrect. Expected (7,n) but got {}".format(measurements.shape))
+            self.values = measurements[4:7]
 
         # Assert that the measurements are flattened
         # print(measurements)
@@ -52,7 +54,7 @@ class Measurement:
                 if self.grid[2] is not None and not np.all(self.measurements[2] == grid[2].flatten()):
                     raise Exception("The z coordinates are not the same as the flattened grid.")
             
-            # Reshape the measurements from (4,n) or (6,n) to (4,n_x,n_y,n_z) or (6,n_x,n_y,n_z)
+            # Reshape the measurements from (5,n) or (7,n) to (5,n_x,n_y,n_z) or (7,n_x,n_y,n_z)
             return self.measurements.reshape((self.measurements.shape[0], *shape))
 
         return self.measurements
@@ -67,12 +69,12 @@ class Measurement:
             raise Exception("The measurements have different lengths. Cannot add them.")
         
         # Check if all coordinates are the same
-        if not np.all(self.measurements[0:3] == other.measurements[0:3]):
+        if not np.all(self.measurements[0:4] == other.measurements[0:4]):
             raise Exception("The measurements have different coordinates. Cannot add them.")
         
         measurement = copy.deepcopy(self)
 
-        measurement.measurements[3:] = self.measurements[3:] + other.measurements[3:]
+        measurement.measurements[4:] = self.measurements[4:] + other.measurements[4:]
 
         return measurement
     
@@ -82,7 +84,7 @@ class Measurement:
         """
 
         measurement = copy.deepcopy(self)
-        measurement.measurements[3:] = -measurement.measurements[3:]
+        measurement.measurements[4:] = -measurement.measurements[4:]
         return measurement
     
     def __sub__(self, other):
@@ -106,17 +108,17 @@ class Measurement:
         if self.magnitude:
             triang = tri.Triangulation(self.measurements[0], self.measurements[1])
 
-            trip = ax.tripcolor(triang, self.measurements[3], cmap='viridis')
+            trip = ax.tripcolor(triang, self.measurements[4], cmap='viridis')
 
         else:
             triang = tri.Triangulation(self.measurements[0], self.measurements[1])
             if kwargs.get("component") is None:
-                magnitude = np.linalg.norm(self.measurements[3:], axis=0)
+                magnitude = np.linalg.norm(self.measurements[4:], axis=0)
 
                 trip = ax.tripcolor(triang, magnitude, cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
             
             else:
-                trip = ax.tripcolor(triang, self.measurements[3 + kwargs.get("component")], cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
+                trip = ax.tripcolor(triang, self.measurements[4 + kwargs.get("component")], cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
 
         if kwargs.get("hide_colorbar") is None:
             cbar = plt.colorbar(trip)
@@ -128,7 +130,7 @@ class Measurement:
             ax.set_yticks([])
 
     def scatter(self, fig = None, ax = None, pos = 111, **kwargs):
-        # if int(str(pos)[0])*int(str(pos)[1]) >= 10 and len(str(pos)) == 3:
+        # if int(str(pos)[0])*int(str(pos)[1]) >= 10 and len(str(pos)) == 4:
         #     pos = int(str(pos)[:2] + "0" + str(pos)[2])
         if fig is None:
             fig = plt.figure()
@@ -137,16 +139,16 @@ class Measurement:
         
         value = None
         if self.magnitude:
-            value = self.measurements[3]
-            # s = ax.scatter(self.measurements[0], self.measurements[1], c=self.measurements[3], cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
+            value = self.measurements[4]
+            # s = ax.scatter(self.measurements[0], self.measurements[1], c=self.measurements[4], cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
         else:
             if kwargs.get("component") is None:
-                value = np.linalg.norm(self.measurements[3:], axis=0)
+                value = np.linalg.norm(self.measurements[4:], axis=0)
 
                 # s = ax.scatter(self.measurements[0], self.measurements[1], c=magnitude, cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
             else:
-                value = self.measurements[3 + kwargs.get("component")]
-                # s = ax.scatter(self.measurements[0], self.measurements[1], c=self.measurements[3 + kwargs.get("component")], cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
+                value = self.measurements[4 + kwargs.get("component")]
+                # s = ax.scatter(self.measurements[0], self.measurements[1], c=self.measurements[4 + kwargs.get("component")], cmap='viridis', vmin=kwargs.get("vmin"), vmax=kwargs.get("vmax"))
 
         vmin = kwargs.get("vmin")
         vmax = kwargs.get("vmax")
@@ -176,7 +178,7 @@ class Measurement:
         Return the mean of the measurements.
         """
         
-        return np.mean(self.measurements[3:])
+        return np.mean(self.measurements[4:])
         
 
 
