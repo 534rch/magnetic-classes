@@ -33,7 +33,8 @@ class Function(Source):
         self.expression_y = expression_y
         self.expression_z = expression_z
 
-    def __call__(self, x, y, z, t=0, magnitude=False):
+    def __call__(self, x, y, z, i=0, dt=1, magnitude=False):
+        t = i * dt
         if not isinstance(x, np.ndarray):
             x = np.array([x])
         if not isinstance(y, np.ndarray):

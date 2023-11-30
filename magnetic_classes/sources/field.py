@@ -58,12 +58,13 @@ class Field(Source):
                 )
             )
 
-    def __call__(self, x, y, z, t=0, magnitude=False, parallel=False) -> Measurement:
+    def __call__(self, x, y, z, i=0, dt=1, magnitude=False, parallel=False) -> Measurement:
         """
         :param x: x-coordinate of the point
         :param y: y-coordinate of the point
         :param z: z-coordinate of the point
-        :param t: time
+        :param i: time index
+        :param dt: time step
         :return: the magnetic field at the point
         """
         if not self.sources and self.dipoles is not None:
@@ -71,13 +72,13 @@ class Field(Source):
 
         if parallel:
             with mp.Pool(processes=len(self.sources)) as pool:
-                results = [pool.apply_async(parallel_source, args=(source, x, y, z, t)) for source in self.sources]
+                results = [pool.apply_async(parallel_source, args=(source, x, y, z, i, dt)) for source in self.sources]
                 B = [result.get() for result in results]
             Bx, By, Bz = np.sum(B, axis=0)
         else:
             # Sum all nd arrays along all axes
             # print(np.sum([source(x, y, z) for source in self.sources], axis=
-            Bx, By, Bz = np.sum([source(x, y, z, t).values for source in self.sources], axis=0)
+            Bx, By, Bz = np.sum([source(x, y, z, i, dt).values for source in self.sources], axis=0)
             # Bx, By, Bz = np.sum([source(x, y, z) for source in self.sources], axis=0)
 
         if magnitude:

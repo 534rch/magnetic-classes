@@ -31,7 +31,7 @@ class Dipole(Source):
             self.my *= np.abs(z0) ** 3 * 1e7/2
             self.mz *= np.abs(z0) ** 3 * 1e7/2
 
-    def __call__(self, x, y, z, t=0, magnitude=False):
+    def __call__(self, x, y, z, i, dt = 1, magnitude=False):
         """
         Calculate the magnetic field at a given point.
         :param x: x-coordinate of the point
@@ -39,6 +39,7 @@ class Dipole(Source):
         :param z: z-coordinate of the point
         :return: the magnetic field strength at the point
         """
+        t = i * dt
         # Check if value is not a numpy array
         if not isinstance(t, np.ndarray) or t.shape[0] == 1:
             t = np.array([t]).repeat(x.shape[0])

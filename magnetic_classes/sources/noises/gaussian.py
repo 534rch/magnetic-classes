@@ -16,10 +16,11 @@ class GaussianNoise(Source):
         self.seed = seed
         np.random.seed(seed)
 
-    def __call__(self, x, y, z, t=0, magnitude=False):
+    def __call__(self, x, y, z, i=0, dt=1, magnitude=False):
         """
         Generate Gaussian noise
         """
+        t = i * dt
         np.random.seed(self.seed+t)
         # Convert to numpy arrays
         x = np.array(x)
