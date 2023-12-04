@@ -58,9 +58,7 @@ class ArMaNoise(Source):
             # Generate AR and MA terms
             for j in range(max_order, num_samples + max_order):
                 ar_term = np.dot(self.ar_coeffs, arma[j-p:j]) 
-                # np.sum(self.ar_coeffs * arma[j-p:j])
                 ma_term = np.dot(self.ma_coeffs, white_noise[j-q:j])
-                # ma_term = np.sum(self.ma_coeffs * white_noise[j-q:j])
                 arma[j] = ar_term + ma_term + white_noise[j]
             
             # Remove the first max_order samples
