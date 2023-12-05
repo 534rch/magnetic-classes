@@ -21,12 +21,27 @@ class MovingDipole(Source):
         :return: the magnetic field strength at the point
         """
 
-        pos = self.path(i)
-        self.dipole.x0 = pos[0]
-        self.dipole.y0 = pos[1]
-        self.dipole.z0 = pos[2]
+        # Moving the dipole is the same as fixing the dipole and moving the point
+        xt, yt, zt = self.path(i)
 
-        return self.dipole(x, y, z, i, dt, magnitude=magnitude)
+        len_x = np.array(x).shape[0]
+        len_t = np.array(xt).shape[0]
+        x = np.array(x).repeat(len_t)
+        y = np.array(y).repeat(len_t)
+        z = np.array(z).repeat(len_t)
+        xt = np.tile(xt, len_x)
+        yt = np.tile(yt, len_x)
+        zt = np.tile(zt, len_x)
+
+        x = x - xt
+        y = y - yt
+        z = z - zt
+
+
+        measurement = self.dipole(x, y, z, 0, dt, magnitude=magnitude)
+        measurement.t = i * dt
+
+        return measurement
 
     def getParameters(self):
         return {

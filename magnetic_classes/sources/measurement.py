@@ -25,7 +25,6 @@ class Measurement:
             self.values = measurements[4:7]
 
         # Assert that the measurements are flattened
-        # print(measurements)
         if len(measurements.shape) == 1:
             measurements = measurements.reshape((1, measurements.shape[0]))
         if len(measurements.shape) != 2:
@@ -37,6 +36,9 @@ class Measurement:
         self.grid = None
         if kwargs.get("grid") is not None:
             self.grid : np.ndarray = kwargs.get("grid")
+
+        if kwargs.get("t") is not None:
+            self.t = kwargs.get("t")
 
     def __call__(self, grid = False, check_grid = True):
         """
@@ -179,13 +181,30 @@ class Measurement:
         """
         
         return np.mean(self.measurements[4:])
-        
 
 
 class ScalarMeasurement(Measurement):
     def __init__(self, measurements, **kwargs):
         super().__init__(measurements, magnitude=True, **kwargs)
+    
+    def values_per_time_step(self):
+        """
+        Return the values per time step.
+        """
+        len_t = len(self.t)
+        len_v = self.values.shape[0] // len_t
+        return self.values.reshape((len_v, len_t)).T
 
 class VectorMeasurement(Measurement):
     def __init__(self, measurements, **kwargs):
         super().__init__(measurements, magnitude=False, **kwargs)
+    
+    def values_per_time_step(self):
+        """
+        Return the values per time step.
+        """
+        len_t = len(self.t)
+        len_v = self.values.shape[1] // len_t
+        values = self.values.reshape((3, len_v, len_t))
+        return np.swapaxes(values, 1, 2)
+
