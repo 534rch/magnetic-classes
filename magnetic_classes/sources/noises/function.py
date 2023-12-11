@@ -41,14 +41,8 @@ class Function(Source):
             y = np.array([y])
         if not isinstance(z, np.ndarray):
             z = np.array([z])
-        if not isinstance(t, np.ndarray):
-            t = np.array([t])
-            
-        len_x = np.array(x).shape[0]
-        x = np.array(x).repeat(t.shape[0])
-        y = np.array(y).repeat(t.shape[0])
-        z = np.array(z).repeat(t.shape[0])
-        t = np.tile(t, len_x)
+        
+        t, x, y, z, _, _ = self.tile_t(t, x, y, z)
 
         # Evaluate the expression
         res = np.zeros((x.shape[0], 3))
@@ -60,9 +54,9 @@ class Function(Source):
         res[:, 2] = res_z
 
         if magnitude:
-            return ScalarMeasurement(np.array([x, y, z, t, np.linalg.norm(res, axis=1)]))
+            return ScalarMeasurement(np.array([x, y, z, t, np.linalg.norm(res, axis=1)]), t=i*dt)
         else:
-            return VectorMeasurement(np.array([x, y, z, t, res[:, 0], res[:, 1], res[:, 2]]))
+            return VectorMeasurement(np.array([x, y, z, t, res[:, 0], res[:, 1], res[:, 2]]), t=i*dt)
     
     def getParameters(self):
         """

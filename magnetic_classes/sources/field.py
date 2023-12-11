@@ -77,14 +77,14 @@ class Field(Source):
             Bx, By, Bz = np.sum(B, axis=0)
         else:
             # Sum all nd arrays along all axes
-            # print(np.sum([source(x, y, z) for source in self.sources], axis=
             Bx, By, Bz = np.sum([source(x, y, z, i, dt).values for source in self.sources], axis=0)
-            # Bx, By, Bz = np.sum([source(x, y, z) for source in self.sources], axis=0)
+
+        t, x, y, z, _, _ = self.tile_t(i*dt, x, y, z)
 
         if magnitude:
-            return ScalarMeasurement(np.array([x, y, z, np.linalg.norm([Bx, By, Bz], axis=0)]))
+            return ScalarMeasurement(np.array([x, y, z, t, np.linalg.norm([Bx, By, Bz], axis=0)]), t=i*dt)
 
-        return VectorMeasurement(np.array([x, y, z, Bx, By, Bz]))
+        return VectorMeasurement(np.array([x, y, z, t, Bx, By, Bz]), t=i*dt)
 
     def getParameters(self):
         """

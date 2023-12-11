@@ -22,17 +22,15 @@ class GaussianNoise(Source):
         """
         t = i * dt
         np.random.seed(self.seed+t)
-        # Convert to numpy arrays
-        x = np.array(x)
-        y = np.array(y)
-        z = np.array(z)
+        
+        t, x, y, z, _, _ = self.tile_t(t, x, y, z)
 
         if magnitude:
             noise = np.random.normal(self.mean, self.std, size=x.shape)
-            return ScalarMeasurement(np.array([x, y, z, noise]))
+            return ScalarMeasurement(np.array([x, y, z, t, noise]), t=i*dt)
         else:
             noise = np.random.normal(self.mean, self.std, size=(x.shape[0], 3))
-            return VectorMeasurement(np.array([x, y, z, noise[:, 0], noise[:, 1], noise[:, 2]]))
+            return VectorMeasurement(np.array([x, y, z, t, noise[:, 0], noise[:, 1], noise[:, 2]]), t=i*dt)
     
     def getParameters(self):
         """

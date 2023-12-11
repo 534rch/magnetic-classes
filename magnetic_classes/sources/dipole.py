@@ -40,17 +40,15 @@ class Dipole(Source):
         :return: the magnetic field strength at the point
         """
         t = i * dt
-        # Check if value is not a numpy array
-        if not isinstance(t, np.ndarray) or t.shape[0] == 1:
-            t = np.array([t]).repeat(x.shape[0])
 
-    
+        # Note: a dipole is not time-dependent, so Bx, By, Bz are just repeated for each time step
 
         if not self.active:
+            t, x, y, z, _, _ = self.tile_t(t, x, y, z)
             if magnitude:
-                return ScalarMeasurement(np.array([x,y,z,t, np.zeros_like(x)]))
+                return ScalarMeasurement(np.array([x,y,z,t, np.zeros_like(x)]), t=i*dt)
             else:
-                return VectorMeasurement(np.array([x,y,z,t, np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)]))
+                return VectorMeasurement(np.array([x,y,z,t, np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)]), t=i*dt)
 
         # Fundamental constants
 
@@ -78,10 +76,16 @@ class Dipole(Source):
         By = mu0 / (4 * np.pi) * (3 * r_in_m_5 * ry - self.my * r_3)
         Bz = mu0 / (4 * np.pi) * (3 * r_in_m_5 * rz - self.mz * r_3)
 
-        if magnitude:
-            return ScalarMeasurement(np.array([x, y, z, t, np.linalg.norm([Bx, By, Bz], axis=0)]))
+        # Repeat for each time step
+        t, x, y, z, _, len_t = self.tile_t(t, x, y, z)
+        Bx = np.array(Bx).repeat(len_t)
+        By = np.array(By).repeat(len_t)
+        Bz = np.array(Bz).repeat(len_t)
 
-        return VectorMeasurement(np.array([x, y, z, t, Bx, By, Bz]))
+        if magnitude:
+            return ScalarMeasurement(np.array([x, y, z, t, np.linalg.norm([Bx, By, Bz], axis=0)]), t=i*dt)
+
+        return VectorMeasurement(np.array([x, y, z, t, Bx, By, Bz]), t=i*dt)
 
     def moment(self):
         """
