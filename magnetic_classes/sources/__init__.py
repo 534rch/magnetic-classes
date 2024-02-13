@@ -1,3 +1,4 @@
+from .constant import *
 from .dipole import *
 from .dipole_grid import *
 from .source import *
