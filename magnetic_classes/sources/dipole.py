@@ -16,7 +16,9 @@ class Dipole(Source):
     :param mz: z-coordinate of the magnetic dipole moment
     """
 
-    def __init__(self, x0=0, y0=0, z0=0, mx=0, my=0, mz=0, active=True, fit_to_surface=False):
+    def __init__(
+        self, x0=0, y0=0, z0=0, mx=0, my=0, mz=0, active=True, fit_to_surface=False
+    ):
         self.x0 = x0
         self.y0 = y0
         self.z0 = z0
@@ -27,11 +29,11 @@ class Dipole(Source):
         self.fit_to_surface = fit_to_surface
 
         if fit_to_surface:
-            self.mx *= np.abs(z0) ** 3 * 1e7/2
-            self.my *= np.abs(z0) ** 3 * 1e7/2
-            self.mz *= np.abs(z0) ** 3 * 1e7/2
+            self.mx *= np.abs(z0) ** 3 * 1e7 / 2
+            self.my *= np.abs(z0) ** 3 * 1e7 / 2
+            self.mz *= np.abs(z0) ** 3 * 1e7 / 2
 
-    def __call__(self, x, y, z, i, dt = 1, magnitude=False):
+    def __call__(self, x, y, z, i, dt=1, magnitude=False):
         """
         Calculate the magnetic field at a given point.
         :param x: x-coordinate of the point
@@ -46,9 +48,24 @@ class Dipole(Source):
         if not self.active:
             t, x, y, z, _, _ = self.tile_t(t, x, y, z)
             if magnitude:
-                return ScalarMeasurement(np.array([x,y,z,t, np.zeros_like(x)]), t=i*dt)
+                return ScalarMeasurement(
+                    np.array([x, y, z, t, np.zeros_like(x)]), t=i * dt
+                )
             else:
-                return VectorMeasurement(np.array([x,y,z,t, np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)]), t=i*dt)
+                return VectorMeasurement(
+                    np.array(
+                        [
+                            x,
+                            y,
+                            z,
+                            t,
+                            np.zeros_like(x),
+                            np.zeros_like(x),
+                            np.zeros_like(x),
+                        ]
+                    ),
+                    t=i * dt,
+                )
 
         # Fundamental constants
 
@@ -83,9 +100,11 @@ class Dipole(Source):
         Bz = np.array(Bz).repeat(len_t)
 
         if magnitude:
-            return ScalarMeasurement(np.array([x, y, z, t, np.linalg.norm([Bx, By, Bz], axis=0)]), t=i*dt)
+            return ScalarMeasurement(
+                np.array([x, y, z, t, np.linalg.norm([Bx, By, Bz], axis=0)]), t=i * dt
+            )
 
-        return VectorMeasurement(np.array([x, y, z, t, Bx, By, Bz]), t=i*dt)
+        return VectorMeasurement(np.array([x, y, z, t, Bx, By, Bz]), t=i * dt)
 
     def moment(self):
         """
@@ -124,5 +143,5 @@ class Dipole(Source):
             "my": self.my,
             "mz": self.mz,
             "active": self.active,
-            "fit_to_surface": self.fit_to_surface
+            "fit_to_surface": self.fit_to_surface,
         }
